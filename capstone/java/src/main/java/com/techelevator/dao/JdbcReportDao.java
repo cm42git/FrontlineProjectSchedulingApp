@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +44,7 @@ public class JdbcReportDao implements ReportDao {
         }
         return statusReports;
     }
+
 
     @Override
     public List<MasterSchedule> listMaster() {
@@ -126,9 +128,17 @@ public class JdbcReportDao implements ReportDao {
         statusReport.setPhase(rs.getString("phase"));
         statusReport.setItemDescription(rs.getString("item_description"));
         statusReport.setSchedule_notes(rs.getString("schedule_notes"));
-        statusReport.setPct_complete(rs.getInt("pct_complete"));
+        int pctAdjusted = pctCompleteAdjust(rs.getInt("pct_complete"), statusReport.getItemDescription(), statusReport.getItemDate());
+//        statusReport.setPct_complete(rs.getInt("pct_complete"));
+        statusReport.setPct_complete(pctAdjusted);
         statusReport.setSchedProdIdx(rs.getFloat("sched_prod_idx"));
         return statusReport;
     }
 
+    private int pctCompleteAdjust(int pctMonthly, String phaseItem, LocalDate itemDate) {
+        if (phaseItem.matches("\\d\\d%") && itemDate.isBefore(LocalDate.now())) {
+            return Math.min(Integer.parseInt(phaseItem.substring(0, 2)), pctMonthly);
+        } else
+            return pctMonthly;
+    }
 }
