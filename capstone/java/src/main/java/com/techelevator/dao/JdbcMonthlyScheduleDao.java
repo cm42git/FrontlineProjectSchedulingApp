@@ -2,15 +2,12 @@ package com.techelevator.dao;
 
 
 import com.techelevator.model.MonthlyPhaseItem;
-import com.techelevator.dao.MonthlyScheduleDao;
 import com.techelevator.model.MonthlySchedule;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;

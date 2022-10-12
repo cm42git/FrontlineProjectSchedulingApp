@@ -1,6 +1,5 @@
 package com.techelevator.model;
 
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 
 public class MonthlySchedule {

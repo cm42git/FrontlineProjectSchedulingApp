@@ -2,17 +2,15 @@ package com.techelevator.dao;
 
 import com.techelevator.model.ModChangeOrder;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class JdbcModsChangeOrdersDao implements ModsChangeOrdersDao {
-
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -70,9 +68,12 @@ public class JdbcModsChangeOrdersDao implements ModsChangeOrdersDao {
                 "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
         Integer modCoId = 0;
         try {
-            jdbcTemplate.update(sql,modChangeOrder.getModCoName(), modChangeOrder.getProjectId(), modChangeOrder.getType(),
-                    modChangeOrder.getCourtDate(), modChangeOrder.isScheduleImpacted(), modChangeOrder.getWhySchedImpact(),
-                    modChangeOrder.getHowSchedImpact(), modChangeOrder.isBudgetImpacted(), modChangeOrder.getWhyBudgetImpact(),
+            jdbcTemplate.update(sql, modChangeOrder.getModCoName(), modChangeOrder.getProjectId(),
+                    modChangeOrder.getType(),
+                    modChangeOrder.getCourtDate(), modChangeOrder.isScheduleImpacted(),
+                    modChangeOrder.getWhySchedImpact(),
+                    modChangeOrder.getHowSchedImpact(), modChangeOrder.isBudgetImpacted(),
+                    modChangeOrder.getWhyBudgetImpact(),
                     modChangeOrder.getHowBudgetImpact(), modChangeOrder.getWhySubmit(), modChangeOrder.getWhyTwo(),
                     modChangeOrder.getWhyThree(), modChangeOrder.getWhyFour(), modChangeOrder.getWhyFive());
             sql = "SELECT MAX(id) FROM mods_changes WHERE project_id = ? ;";
@@ -108,7 +109,8 @@ public class JdbcModsChangeOrdersDao implements ModsChangeOrdersDao {
                 "WHERE id = ?;";
         jdbcTemplate.update(sql, modChangeOrder.getModCoName(), modChangeOrder.getProjectId(), modChangeOrder.getType(),
                 modChangeOrder.getCourtDate(), modChangeOrder.isScheduleImpacted(), modChangeOrder.getWhySchedImpact(),
-                modChangeOrder.getHowSchedImpact(), modChangeOrder.isBudgetImpacted(), modChangeOrder.getWhyBudgetImpact(),
+                modChangeOrder.getHowSchedImpact(), modChangeOrder.isBudgetImpacted(),
+                modChangeOrder.getWhyBudgetImpact(),
                 modChangeOrder.getHowBudgetImpact(), modChangeOrder.getWhySubmit(), modChangeOrder.getWhyTwo(),
                 modChangeOrder.getWhyThree(), modChangeOrder.getWhyFour(), modChangeOrder.getWhyFive(),
                 modChangeOrder.isApproved(), modChangeOrder.getApproveDateTm(), modChangeOrder.getId());
@@ -121,16 +123,14 @@ public class JdbcModsChangeOrdersDao implements ModsChangeOrdersDao {
     }
 
     @Override
-    public boolean changeApprovedStatus(int id, boolean status)
-    {
-       String updateModCoSql = "UPDATE mods_changes SET approved = ?, approv_datetm = current_timestamp " +
-               "WHERE id = ?;";
-       return jdbcTemplate.update(updateModCoSql, status, id) == 1;
+    public boolean changeApprovedStatus(int id, boolean status) {
+        String updateModCoSql = "UPDATE mods_changes SET approved = ?, approv_datetm = current_timestamp " +
+                "WHERE id = ?;";
+        return jdbcTemplate.update(updateModCoSql, status, id) == 1;
     }
 
     @Override
-    public ModChangeOrder getSingleModCO(int id)
-    {
+    public ModChangeOrder getSingleModCO(int id) {
         String sql = "SELECT id, " +
                 "mod_co_name, " +
                 "project_id, " +
@@ -153,13 +153,11 @@ public class JdbcModsChangeOrdersDao implements ModsChangeOrdersDao {
                 "WHERE id = ?;";
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, id);
         ModChangeOrder modChangeOrder = new ModChangeOrder();
-        if(rs.next())
-        {
+        if (rs.next()) {
             modChangeOrder = mapRowToModsCO(rs);
         }
         return modChangeOrder;
     }
-
 
     private ModChangeOrder mapRowToModsCO(SqlRowSet rs) {
         ModChangeOrder modChangeOrder = new ModChangeOrder();
@@ -168,7 +166,13 @@ public class JdbcModsChangeOrdersDao implements ModsChangeOrdersDao {
         modChangeOrder.setProjectId(rs.getInt("project_id"));
         modChangeOrder.setType(rs.getString("type"));
         if (rs.getDate("court_date") != null) {
-           modChangeOrder.setCourtDate(rs.getDate("court_date").toLocalDate());
+            try {
+                modChangeOrder.setCourtDate(rs.getDate("court_date").toLocalDate());
+            } catch (InvalidResultSetAccessException e) {
+                System.out.println("Invalid date for " + modChangeOrder.getModCoName());
+            } catch (NullPointerException e) {
+                System.err.println("No court date provided for " + modChangeOrder.getModCoName());
+            }
         }
         modChangeOrder.setScheduleImpacted(rs.getBoolean("schedule_impacted"));
         modChangeOrder.setWhySchedImpact(rs.getString("why_sched_impact"));
@@ -183,7 +187,13 @@ public class JdbcModsChangeOrdersDao implements ModsChangeOrdersDao {
         modChangeOrder.setWhyFive(rs.getString("why_five"));
         modChangeOrder.setApproved(rs.getBoolean("approved"));
         if (rs.getTimestamp("approv_datetm") != null) {
-            modChangeOrder.setApproveDateTm(rs.getTimestamp("approv_datetm").toLocalDateTime());
+            try {
+                modChangeOrder.setApproveDateTm(rs.getTimestamp("approv_datetm").toLocalDateTime());
+            } catch (InvalidResultSetAccessException e) {
+                System.err.println("Invalid approval datetime for " + modChangeOrder.getModCoName());
+            } catch (NullPointerException e) {
+                System.err.println("No approval datetime provided for " + modChangeOrder.getModCoName());
+            }
         }
         return modChangeOrder;
     }
