@@ -16,29 +16,29 @@
     "gantt-elastic": "^1.0.12",
     "gantt-elastic-header": "^0.1.11",
     "moment": "^2.29.4",
-    "vue": "^2.6.12",
+    "nanoid": ">=3.1.31",
+    "vue": "^2.7.14",
     "vue-router": "^3.5.1",
     "vuetify": "^2.6.11",
-    "vuex": "^3.6.2",
-    "nanoid": ">=3.1.31"
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-e2e-cypress": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
-    "@vue/cli-plugin-unit-mocha": "^5.0.8",
+    "@vue/cli-plugin-unit-mocha": "^4.5.19",
     "@vue/cli-service": "^5.0.8",
     "@vue/test-utils": "1.1.3",
     "babel-eslint": "^10.0.1",
     "chai": "^4.3.6",
     "eslint": "^7.21.0",
     "eslint-plugin-vue": "^7.7.0",
+    "nanoid": ">=3.1.31",
     "sass": "~1.55.0",
     "sass-loader": "^13.1.0",
     "vue-cli-plugin-vuetify": "~2.5.8",
     "vue-loader-v16": "npm:vue-loader@17.0.0",
     "vue-template-compiler": "^2.7.10",
-    "vuetify-loader": "^1.9.2",
-    "nanoid": ">=3.1.31"
+    "vuetify-loader": "^1.9.2"
   }
 }
